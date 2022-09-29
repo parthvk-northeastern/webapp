@@ -3,11 +3,11 @@ const app = express();
 
 //Endpoints for health status check
 app.get("/", (req, res) => {
-  res.status(200).send("server responds with 200 OK if it is healhty.");
+  res.status(200).send();
 });
 
 app.get("/healthz", (req, res) => {
-  res.status(200).send("server responds with 200 OK if it is healhty.");
+  res.status(200).send();
 });
 
 //PORT
