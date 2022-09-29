@@ -18,6 +18,7 @@
 - git checkout -b a1-02
 
 ### To install dependencies and run project
+- Install node
 - Run npm init --yes
 - Run npm i express
 
@@ -27,7 +28,10 @@
 - Run npm i -g nodemon
 
 - Use set command to add environment variable
-- set PORT=5000
+- set PORT=3000
+- Run node index.js to run the project
+- Test using postman
+- Run Get http://localhost:3000/healthz in postman to get status code 200
 
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
