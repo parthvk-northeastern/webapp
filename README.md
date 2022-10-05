@@ -37,5 +37,8 @@
 ### To install mysql 
 - Run npm install --save mysql
 
+### To install bycrpt
+- Run npm i bcryptjs
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
