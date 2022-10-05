@@ -40,5 +40,8 @@
 ### To install bycrpt
 - Run npm i bcryptjs
 
+### To install basic auth
+- Run npm install express-basic-auth
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
