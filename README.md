@@ -44,7 +44,7 @@
 - Run npm install express-basic-auth
 
 ### To Install jest
-- npm i --save-dev jest
+- npm i --save-dev jest 
 - npm i chai
 - npm i mocha
 - npm i chai-http
