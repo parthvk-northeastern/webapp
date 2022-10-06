@@ -45,6 +45,8 @@
 
 ### To Install jest
 - npm i --save-dev jest
+
+### To Install mocha and chai
 - npm i chai
 - npm i mocha
 - npm i chai-http
