@@ -97,18 +97,34 @@ Router.post("/v1/account", async (req, res) => {
 
 Router.put("/v1/account/:id", async (req, res) => {
   try {
+    // Check if input payload contains any other fields than the editable fields
+    const fields = req.body;
+    for (let key in fields) {
+      if (
+        key != "first_name" &&
+        key != "last_name" &&
+        key != "password" &&
+        key != "username"
+      ) {
+        return res.status(400).send("Bad Request");
+      }
+    }
     auth = authentication(req);
     var user = auth[0];
     var pass = auth[1];
-    const { username, password } = req.body;
-    const hash = await bcrypt.hash(password, 10);
+
     let qb = req.body;
     const sql =
-      "SET @id = ?;SET @first_name = ?;SET @last_name = ?;SET @password = ?;SET @username = ?; 	UPDATE account SET  first_name = @first_name, last_name = @last_name,  password = @password, username = @username,  account_updated = now() WHERE ID = @id and username=@username; SELECT * FROM account WHERE ID = @ID and username = @username; SELECT id, first_name, last_name, username, account_created, account_updated FROM account WHERE id= @id and username= @username";
+      "SET @id = ?;SET @first_name = ?;SET @last_name = ?;SET @password = ?;SET @username = ?; 	UPDATE account SET  first_name = @first_name, last_name = @last_name,  password = @password, username = @username,  account_updated = now() WHERE ID = @id and username=@username; SELECT id, first_name, last_name, username, account_created, account_updated FROM account WHERE id= @id and username= @username";
     mysqlConnection.query(
       "SELECT id,first_name, last_name, password, username, account_created, account_updated FROM account WHERE username = ?",
       [user],
-      (err, results, fields) => {
+      async (err, results, fields) => {
+        // const password = req.body.password || results[0].password;
+        const first_name = req.body.first_name || results[0].first_name;
+        const last_name = req.body.last_name || results[0].last_name;
+        const hash = await bcrypt.hash(req.body.password || pass, 10);
+
         if (results[0]) {
           const p = results[0].password || null;
           const userMatches = basicAuth.safeCompare(
@@ -124,7 +140,7 @@ Router.put("/v1/account/:id", async (req, res) => {
           if (userMatches & validPass) {
             mysqlConnection.query(
               sql,
-              [req.params.id, qb.first_name, qb.last_name, hash, user],
+              [req.params.id, first_name, last_name, hash, user],
               (err, results, fields) => {
                 if (results[0]) {
                   res.status(204).send("No Content");
