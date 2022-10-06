@@ -43,5 +43,11 @@
 ### To install basic auth
 - Run npm install express-basic-auth
 
+### To Install jest
+- npm i --save-dev jest
+- npm i chai
+- npm i mocha
+- npm i chai-http
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
