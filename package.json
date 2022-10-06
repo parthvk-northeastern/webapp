@@ -2,7 +2,7 @@
   "name": "webapp",
   "version": "1.0.0",
   "description": "-- Git Command Workflow for adding origin\r -- git remote -v\r -- git remote add parth repo_name\r -- git remote remove origin\r -- git remote add upstream org_name",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
