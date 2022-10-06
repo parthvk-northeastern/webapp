@@ -21,6 +21,7 @@
 - Install node
 - Run npm init --yes
 - Run npm i express
+- Run npm i --save body-parser
 
 - Create a new file named index.js
 
@@ -32,6 +33,15 @@
 - Run node index.js to run the project
 - Test using postman
 - Run Get http://localhost:3000/healthz in postman to get status code 200
+
+### To install mysql 
+- Run npm install --save mysql
+
+### To install bycrpt
+- Run npm i bcryptjs
+
+### To install basic auth
+- Run npm install express-basic-auth
 
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
