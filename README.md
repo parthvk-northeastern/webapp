@@ -2,7 +2,7 @@
 
 ### Git Command Workflow for adding origin
 - git remote -v
-- git remote add parth repo_name
+- git remote add parth repo_name  
 - git remote remove origin
 - git remote add upstream org_name
 
