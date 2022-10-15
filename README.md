@@ -35,7 +35,7 @@
 - Run Get http://localhost:3000/healthz in postman to get status code 200
 
 ### To install mysql 
-- Run npm install --save mysql
+- Run npm install --save mysql2
 
 ### To install bycrpt
 - Run npm i bcryptjs
@@ -49,5 +49,16 @@
 - npm i mocha
 - npm i chai-http
 
+### To Install sequalize
+- npm install sequelize sequelize-cli
+- sequelize init
+- npm install fs path
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
+
+### Assignment 2
+- Develop API's and use git branch protection and git actions
+
+### Assignment 4
+- Using ORM such as sequalize
