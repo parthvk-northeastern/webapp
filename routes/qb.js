@@ -1,9 +1,12 @@
 //Package Imports
 const express = require("express");
 const app = express();
-const mysqlConnection = require("../utils/database");
 const bcrypt = require("bcryptjs");
 const Router = express.Router();
+
+//Using sequelize
+const { Accounts } = require("../models");
+Accounts.sequelize.sync().then(console.log("success"));
 
 const basicAuth = require("express-basic-auth");
 app.use(basicAuth);
@@ -12,7 +15,8 @@ app.use(basicAuth);
 function authentication(req, res, next) {
   var authheader = req.headers.authorization || null;
   if (!authheader) {
-    return res.status(400);
+    console.log("test");
+    return authheader;
   }
   var auth = new Buffer.from(authheader.split(" ")[1], "base64")
     .toString()
@@ -30,74 +34,55 @@ Router.get("/healthz", (req, res) => {
   res.status(200).send();
 });
 
-Router.get("/v1/account/:id", (req, res) => {
-  auth = authentication(req, res);
-  var user = auth[0];
-  var pass = auth[1];
-  mysqlConnection.query(
-    "SELECT first_name, last_name, password, username, account_created, account_updated FROM account WHERE username= ?",
-    [user],
-    (err, results, fields) => {
-      if (results[0]) {
-        const p = results[0].password || null;
-        const validPass = bcrypt.compareSync(pass, p);
-        if (validPass) {
-          mysqlConnection.query(
-            "SELECT id, first_name, last_name, username, account_created, account_updated FROM account WHERE id= ? and username= ?",
-            [req.params.id, user],
-            (err, results, fields) => {
-              if (results[0]) {
-                res.send(results);
-              } else {
-                res.status(403).send("Forbidden");
-              }
-            }
-          );
+Router.get("/v1/account/:id", async (req, res) => {
+  try {
+    auth = authentication(req, res);
+    var user = auth[0];
+    var pass = auth[1];
+    const acc = await Accounts.findOne({
+      where: {
+        username: user,
+      },
+    });
+    if (acc) {
+      const validPass = bcrypt.compareSync(pass, acc.password);
+      if (validPass) {
+        if (req.params.id === acc.id) {
+          acc.password = undefined;
+          return res.status(200).send(acc);
         } else {
-          res.status(401).send("Unauthorized");
+          return res.status(403).send("Forbidden");
         }
       } else {
-        res.status(401).send("Unauthorized");
+        return res.status(401).send("Unauthorized");
       }
+    } else {
+      return res.status(401).send("Unauthorized");
     }
-  );
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send("Bad Request");
+  }
 });
 
 Router.post("/v1/account", async (req, res) => {
   try {
-    let regex = new RegExp("[a-z0-9]+@[a-z]+.[a-z]{2,3}");
-    regex.test(req.body.username);
-    if (!regex.test(req.body.username)) {
-      return res.status(400).send("Bad Request");
-    }
-    let qb = req.body;
-    const { password } = req.body;
-    const hash = await bcrypt.hash(password, 10);
-    const sql =
-      "SET @first_name = ?;SET @last_name = ?;SET @password = ?;SET @username = ?; 	INSERT INTO account(id, first_name, last_name, password, username, account_created, account_updated) VALUES (SUBSTR(MD5(RAND()), 1, 8), @first_name, @last_name, @password, @username, now(), now() ); SELECT id, first_name, last_name, username, account_created, account_updated FROM account WHERE username = @username;";
-    mysqlConnection.query(
-      sql,
-      [qb.first_name, qb.last_name, hash, qb.username],
-      (err, results, fields) => {
-        if (!err) {
-          results.forEach((element) => {
-            if (element.constructor == Array) res.status(201).send(element);
-          });
-        } else {
-          console.log(err);
-          res.status(400).send("Bad Request");
-        }
-      }
-    );
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const Acc = await Accounts.create({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      username: req.body.username,
+      password: hash,
+    });
+    Acc.password = undefined;
+    return res.status(201).send(Acc);
   } catch (e) {
-    console.log(e);
-    res.status(400).send("Bad Request");
+    return res.status(400).send("Bad Request");
   }
 });
 
 Router.put("/v1/account/:id", async (req, res) => {
   try {
-    // Check if input payload contains any other fields than the editable fields
     const fields = req.body;
     for (let key in fields) {
       if (
@@ -109,55 +94,48 @@ Router.put("/v1/account/:id", async (req, res) => {
         return res.status(400).send("Bad Request");
       }
     }
-    auth = authentication(req);
+    auth = authentication(req, res);
     var user = auth[0];
     var pass = auth[1];
 
-    let qb = req.body;
-    const sql =
-      "SET @id = ?;SET @first_name = ?;SET @last_name = ?;SET @password = ?;SET @username = ?; 	UPDATE account SET  first_name = @first_name, last_name = @last_name,  password = @password, username = @username,  account_updated = now() WHERE ID = @id and username=@username; SELECT id, first_name, last_name, username, account_created, account_updated FROM account WHERE id= @id and username= @username";
-    mysqlConnection.query(
-      "SELECT id,first_name, last_name, password, username, account_created, account_updated FROM account WHERE username = ?",
-      [user],
-      async (err, results, fields) => {
-        // const password = req.body.password || results[0].password;
-        const first_name = req.body.first_name || results[0].first_name;
-        const last_name = req.body.last_name || results[0].last_name;
-        const hash = await bcrypt.hash(req.body.password || pass, 10);
+    const Acc = await Accounts.findOne({
+      where: {
+        username: user,
+      },
+    });
 
-        if (results[0]) {
-          const p = results[0].password || null;
-          const userMatches = basicAuth.safeCompare(
-            results[0].id,
-            req.params.id
-          );
-          const validPass = bcrypt.compareSync(pass, p);
-          if (validPass) {
-            if (!userMatches) {
-              return res.status(403).send("Forbidden");
+    if (Acc) {
+      const validPass = bcrypt.compareSync(pass, Acc.password);
+      if (validPass) {
+        if (req.params.id === Acc.id) {
+          const Hpassword = req.body.password || pass;
+          const first = req.body.first_name || Acc.first_name;
+          const last = req.body.last_name || Acc.last_name;
+          const hash = bcrypt.hashSync(Hpassword, 10);
+          const Accu = await Accounts.update(
+            {
+              first_name: first,
+              last_name: last,
+              password: hash,
+            },
+            {
+              where: {
+                username: user,
+              },
             }
-          }
-          if (userMatches & validPass) {
-            mysqlConnection.query(
-              sql,
-              [req.params.id, first_name, last_name, hash, user],
-              (err, results, fields) => {
-                if (results[0]) {
-                  res.status(204).send("No Content");
-                } else {
-                  res.status(403).send("Forbidden");
-                }
-              }
-            );
-          } else {
-            res.status(401).send("Unauthorized");
-          }
+          );
+          return res.status(204).send("");
         } else {
-          res.status(401).send("Unauthorized");
+          return res.status(403).send("Forbidden");
         }
+      } else {
+        return res.status(401).send("Unauthorized");
       }
-    );
+    } else {
+      return res.status(401).send("Unauthorized");
+    }
   } catch (e) {
+    console.log(e);
     return res.status(400).send("Bad Request");
   }
 });
