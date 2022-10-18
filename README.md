@@ -54,6 +54,9 @@
 - sequelize init
 - npm install fs path
 
+### To install packer
+- Downloaded the binary, pasted it in c drive and set the path of packer in env variables.
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
 
@@ -62,3 +65,4 @@
 
 ### Assignment 4
 - Using ORM such as sequalize
+- Installing packer
