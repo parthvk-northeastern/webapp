@@ -57,6 +57,19 @@
 ### To install packer
 - Downloaded the binary, pasted it in c drive and set the path of packer in env variables.
 
+### To run packer
+- export AWS_ACCESS_KEY_ID="<YOUR_AWS_ACCESS_KEY_ID>"
+- export AWS_SECRET_ACCESS_KEY="<YOUR_AWS_SECRET_ACCESS_KEY>"
+- export PACKER_LOG=1
+- packer build ami.pkr.hcl
+
+### To create keypair and add it to aws account
+- cd .ssh
+- ssh-keygen
+
+### To ssh into vm
+- ssh username@public ip -i ~/.ssh/aws -v
+
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
 
@@ -66,3 +79,4 @@
 ### Assignment 4
 - Using ORM such as sequalize
 - Installing packer
+- Packer format - packer fmt ami.pkr.hcl
