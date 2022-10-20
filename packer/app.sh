@@ -5,15 +5,15 @@ sleep 30
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install nginx -y
-sudo mkdir webapp
-sudo cp -r routes config README.md models package-lock.json server.js packer test.js package.json ~/webapp/
-cd webapp && sudo curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
-# sudo curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
+# sudo mkdir webapp
+# sudo cp -r routes config README.md models package-lock.json server.js packer test.js package.json ~/webapp/
+# cd webapp && sudo curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
+sudo curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
 sudo bash nodesource_setup.sh
 sudo apt-get install nodejs -y
 sudo apt-get install npm -y
-# sudo apt install unzip
-# # cd ~/ && unzip webapp.zip
+sudo apt install unzip
+cd ~/ && unzip webapp.zip
 sudo npm i
 
 echo "Installing mysql server"
