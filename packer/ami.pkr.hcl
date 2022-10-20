@@ -60,7 +60,7 @@ build {
   sources = ["source.amazon-ebs.my-ami"]
 
   provisioner "file" {
-    source      = ".././"
+    source      = "./"
     destination = "/home/ubuntu/"
   }
 
