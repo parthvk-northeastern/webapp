@@ -34,3 +34,9 @@ jobs:
       - run: npm install
       - run: npm run build --if-present
       - run: npm start & npm test
+
+      - name: Validate Packer
+        run: |
+          cd packer
+          packer init ami.pkr.hcl
+          packer validate ami.pkr.hcl
