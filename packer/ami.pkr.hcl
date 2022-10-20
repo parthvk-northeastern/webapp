@@ -61,7 +61,7 @@ build {
 
   provisioner "file" {
     source      = ".././"
-    destination = "/home/ubuntu/webapp/"
+    destination = "/home/ubuntu/"
   }
 
   provisioner "shell" {
