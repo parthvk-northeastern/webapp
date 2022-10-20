@@ -14,7 +14,7 @@ sudo apt-get install nodejs -y
 sudo apt-get install npm -y
 sudo apt install unzip
 cd ~/ && unzip webapp.zip
-sudo npm i
+cd ~/webapp && npm i
 
 echo "Installing mysql server"
 sudo apt-get install mysql-server -y
