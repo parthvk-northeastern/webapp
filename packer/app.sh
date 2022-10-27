@@ -34,7 +34,7 @@ cd ~/webapp
 sudo npm i pm2
 sudo npm i -g pm2
 pm2 start server.js
-sudo pm2 save
-sudo pm2 startup systemd
-sudo pm2 restart all --update-env
+pm2 save
+pm2 startup systemd
+pm2 restart all --update-env
 
