@@ -32,7 +32,7 @@ sudo apt-get install mysql-server -y
 
 sudo npm i pm2
 sudo npm i -g pm2
-sudo pm2 start server.js
-sudo pm2 startup systemd
+pm2 start server.js
+pm2 startup systemd
 
 sudo apt-get clean
