@@ -15,7 +15,7 @@ sudo bash nodesource_setup.sh
 sudo apt-get install nodejs -y
 sudo apt-get install npm -y
 sudo apt install unzip
-cd..
+cd ..
 sudo unzip webapp.zip -d ~/webapp
 cd ~/webapp && sudo npm i
 
