@@ -29,6 +29,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+      - name: Build zip
+        working-directory: ${{ github.workspace }}
+        run: zip -r webapp.zip ./*
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3.5.0
         with:
