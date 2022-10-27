@@ -33,7 +33,7 @@ source "amazon-ebs" "my-ami" {
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "AMI for CSYE 6225"
 
-  ami_users =[
+  ami_users = [
     "484952867694",
   ]
   ami_regions = [
@@ -63,8 +63,8 @@ build {
   sources = ["source.amazon-ebs.my-ami"]
 
   provisioner "file" {
-    source      = "./webapp.zip"
-    destination = "/home/ubuntu/webapp.zip"
+    source      = ".././"
+    destination = "/home/ubuntu/"
   }
 
   provisioner "shell" {

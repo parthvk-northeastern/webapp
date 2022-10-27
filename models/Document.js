@@ -13,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       user_id: {
         type: DataTypes.UUID,
-        // defaultValue: DataTypes.UUIDV4,
         readOnly: true,
       },
       name: {
