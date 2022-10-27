@@ -74,10 +74,16 @@
 ### Assignment 1
 - Develop a web application with RESTful API without any UI
 
-### Assignment 2
+### Assignment 2 
 - Develop API's and use git branch protection and git actions
 
 ### Assignment 4
 - Using ORM such as sequalize
 - Installing packer
 - Packer format - packer fmt ami.pkr.hcl
+
+### Assignment 5
+- To install sdk npm install --save aws-sdk
+- To install multer npm install multer multer-s3
+- To install dotenv npm i dotenv
+
