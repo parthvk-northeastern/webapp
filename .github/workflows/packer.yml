@@ -24,6 +24,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Build zip
+        working-directory: ${{ github.workspace }}
+        run: zip -r webapp.zip ./*
+
       - name: Validate Template
         run: |
           cd packer
