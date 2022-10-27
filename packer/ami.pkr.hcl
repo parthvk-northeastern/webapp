@@ -27,17 +27,22 @@ variable "subnet_id" {
   default = "subnet-09fd77415b5d173c0"
 }
 
+variable "ami_users" {
+  type    = string
+  default = "484952867694"
+}
+
 # https://www.packer.io/plugins/builders/amazon/ebs
 source "amazon-ebs" "my-ami" {
   region          = "${var.aws_region}"
   ami_name        = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description = "AMI for CSYE 6225"
 
-  ami_users = [
-    "484952867694",
-  ]
+  // ami_users = [
+  //   "${var.ami_users}",
+  // ]
   ami_regions = [
-    "us-east-1",
+   "${var.aws_region}",
   ]
 
   // aws_polling {
@@ -63,8 +68,8 @@ build {
   sources = ["source.amazon-ebs.my-ami"]
 
   provisioner "file" {
-    source      = ".././"
-    destination = "/home/ubuntu/"
+    source      = "../webapp.zip"
+    destination = "/home/ubuntu/webapp.zip"
   }
 
   provisioner "shell" {
