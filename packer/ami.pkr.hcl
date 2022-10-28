@@ -72,6 +72,11 @@ build {
     destination = "/home/ubuntu/webapp.zip"
   }
 
+  provisioner "file" {
+    source      = "../webapp.service"
+    destination = "/tmp/webapp.service"
+  }
+
   provisioner "shell" {
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
