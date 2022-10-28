@@ -1,0 +1,11 @@
+[Unit]
+Description=Webapp - Running the webapp on start
+After=network.target
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/bin/node /home/ubuntu/webapp/server.js
+EnvironmentFile=/home/ubuntu/webapp/server/.env
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

@@ -31,11 +31,19 @@ sudo apt-get install mysql-server -y
 # sudo service mysql start
 
 cd ~/webapp
-sudo npm i pm2
-sudo npm i -g pm2
-pm2 start server.js
-pm2 save
-pm2 startup systemd
-sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
-pm2 restart all --update-env
+#!/usr/bin/env bash
+cd ~
+sudo cp /tmp/webapp.service /lib/systemd/system/webapp.service
+echo "Service File successfully copied"
+sudo systemctl daemon-reload
+sudo systemctl start webapp
+sudo systemctl status webapp
+sudo systemctl enable webapp
+# sudo npm i pm2
+# sudo npm i -g pm2
+# pm2 start server.js
+# pm2 save
+# pm2 startup systemd
+# sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
+# pm2 restart all --update-env
 
