@@ -4,8 +4,7 @@ After=network.target
 [Service]
 Type=simple
 User=ubuntu
-ExecStart=/usr/bin/node /home/ubuntu/webapp/server.js
-EnvironmentFile=/home/ubuntu/webapp/server/.env
+ExecStart=/bin/bash -c "source /etc/environment && cd /home/ubuntu/webapp/ && npm start"
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
