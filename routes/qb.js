@@ -5,6 +5,12 @@ const app = express();
 const bcrypt = require("bcryptjs");
 const Router = express.Router();
 
+//Statsd imports
+const logger = require("../config/logger");
+const SDC = require("statsd-client");
+const sdc = new SDC({ host: "localhost", port: 8125 });
+var start = new Date();
+
 //Using sequelize
 const { Accounts } = require("../models");
 const { Document } = require("../models");
@@ -60,6 +66,9 @@ Router.get("/", (req, res) => {
 
 //Health check
 Router.get("/healthz", (req, res) => {
+  sdc.timing("health.timeout", start);
+  logger.info("/health running fine");
+  sdc.increment("endpoint.health");
   res.status(200).send();
 });
 
