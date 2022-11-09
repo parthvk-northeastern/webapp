@@ -83,6 +83,7 @@
 - Installing packer
 - Packer format - packer fmt ami.pkr.hcl
 
+
 ### Assignment 5
 - To install sdk npm install --save aws-sdk
 - To install multer npm install multer multer-s3
