@@ -66,7 +66,7 @@ Router.get("/", (req, res) => {
 
 //Health check
 Router.get("/healthz", (req, res) => {
-  // sdc.timing("health.timeout", start);
+  sdc.timing("healthz.timeout", start);
   logger.info("/health running fine");
   sdc.increment("endpoint.healthz");
   res.status(200).send();
