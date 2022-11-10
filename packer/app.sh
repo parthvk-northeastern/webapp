@@ -40,6 +40,9 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
 # sudo service mysql start
 
 cd ~/webapp
+sudo mkdir logs
+cd logs
+sudo touch combined.log
 #!/usr/bin/env bash
 cd ~
 sudo cp /tmp/webapp.service /lib/systemd/system/webapp.service
