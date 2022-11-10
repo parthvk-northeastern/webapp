@@ -66,14 +66,15 @@ Router.get("/", (req, res) => {
 
 //Health check
 Router.get("/healthz", (req, res) => {
-  sdc.timing("health.timeout", start);
+  // sdc.timing("health.timeout", start);
   logger.info("/health running fine");
-  sdc.increment("endpoint.health");
+  sdc.increment("endpoint.healthz");
   res.status(200).send();
 });
 
 //Account endpoints
 Router.get("/v1/account/:id", async (req, res) => {
+  sdc.increment("endpoint.getAccount");
   try {
     auth = authentication(req, res);
     var user = auth[0];
@@ -88,8 +89,12 @@ Router.get("/v1/account/:id", async (req, res) => {
       if (validPass) {
         if (req.params.id === acc.id) {
           acc.password = undefined;
+          logger.info("getAccount Success");
           return res.status(200).send(acc);
         } else {
+          logger.error(
+            "Username and password correct but not permitted to access the ID specified"
+          );
           return res.status(403).send("Forbidden");
         }
       } else {
@@ -100,11 +105,13 @@ Router.get("/v1/account/:id", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
 
 Router.post("/v1/account", async (req, res) => {
+  sdc.increment("endpoint.postAccount");
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
     const Acc = await Accounts.create({
@@ -114,14 +121,17 @@ Router.post("/v1/account", async (req, res) => {
       password: hash,
     });
     Acc.password = undefined;
+    logger.info("postAccount Success");
     return res.status(201).send(Acc);
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
 
 Router.put("/v1/account/:id", async (req, res) => {
+  sdc.increment("endpoint.updateAccount");
   try {
     const fields = req.body;
     for (let key in fields) {
@@ -164,6 +174,7 @@ Router.put("/v1/account/:id", async (req, res) => {
               },
             }
           );
+          logger.info("updateAccount Success");
           return res.status(204).send("");
         } else {
           return res.status(403).send("Forbidden");
@@ -176,6 +187,7 @@ Router.put("/v1/account/:id", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
@@ -183,6 +195,7 @@ Router.put("/v1/account/:id", async (req, res) => {
 //Documents endpoint
 
 Router.get("/v1/documents/:doc_id", async (req, res) => {
+  sdc.increment("endpoint.getDocument");
   try {
     auth = authentication(req, res);
     var user = auth[0];
@@ -202,6 +215,7 @@ Router.get("/v1/documents/:doc_id", async (req, res) => {
           },
         });
         if (doc) {
+          logger.info("getDocument Success");
           res.status(200).send(doc);
         } else {
           return res.status(403).send("Forbidden");
@@ -214,11 +228,13 @@ Router.get("/v1/documents/:doc_id", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
 
 Router.get("/v1/documents", async (req, res) => {
+  sdc.increment("endpoint.getAllDocuments");
   try {
     auth = authentication(req, res);
     var user = auth[0];
@@ -237,6 +253,7 @@ Router.get("/v1/documents", async (req, res) => {
           },
         });
         if (doc) {
+          logger.info("getAllDocuments Success");
           res.status(200).send(doc);
         } else {
           return res.status(403).send("Forbidden");
@@ -249,11 +266,13 @@ Router.get("/v1/documents", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
 
 Router.post("/v1/documents", async (req, res) => {
+  sdc.increment("endpoint.postDocument");
   try {
     auth = authentication(req, res);
     var user = auth[0];
@@ -276,6 +295,7 @@ Router.post("/v1/documents", async (req, res) => {
               name: req.file.key,
               s3_bucket_path: req.file.location,
             });
+            logger.info("postDocument Success");
             res.status(201).send(doc);
           } catch (e) {
             console.log(e);
@@ -290,11 +310,13 @@ Router.post("/v1/documents", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(400).send("Bad Request");
   }
 });
 
 Router.delete("/v1/documents/:doc_id", async (req, res) => {
+  sdc.increment("endpoint.deleteDocument");
   try {
     auth = authentication(req, res);
     var user = auth[0];
@@ -321,6 +343,7 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
               doc_id: req.params.doc_id,
             },
           });
+          logger.info("deleteDocument Success");
           res.sendStatus(204);
         } else {
           return res.status(404).send("Not Found");
@@ -333,6 +356,7 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+    logger.error(e);
     return res.status(404).send("Not Found");
   }
 });
