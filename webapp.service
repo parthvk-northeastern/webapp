@@ -4,7 +4,7 @@ After=network.target
 [Service]
 Type=simple
 User=ubuntu
-ExecStart=/bin/bash -c "sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 3000 && source /etc/environment && cd /home/ubuntu/webapp/ && npm start"
+ExecStart=/bin/bash -c "sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 3000 && source /etc/environment && cd /home/ubuntu/webapp/ && sudo npm start"
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
