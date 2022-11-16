@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcryptjs");
 const Router = express.Router();
-
+const nanoid = require("nanoid");
 //Statsd imports
 const logger = require("../config/logger");
 const SDC = require("statsd-client");
@@ -119,7 +119,45 @@ Router.post("/v1/account", async (req, res) => {
       last_name: req.body.last_name,
       username: req.body.username,
       password: hash,
+      verifyuser: false,
     });
+
+    //To send message to Dynamo DB
+    var dynamoDatabase = new aws.DynamoDB({
+      apiVersion: "2012-08-10",
+      region: "us-east-1",
+    });
+    const elapsedTime = 5 * 60;
+    const initialTime = Math.floor(Date.now() / 1000);
+    const expiryTime = initialTime + elapsedTime;
+    // console.log(nanoid());
+    const randomnanoID = nanoid();
+    // console.log(nanoid());
+    // Create the Service interface for dynamoDB
+    var parameter = {
+      Item: {
+        TokenName: { S: randomnanoID },
+        TimeToLive: { N: expiryTime.toString() },
+      },
+      TableName: "myDynamoTokenTable",
+    };
+    //saving the token onto the dynamo DB
+    await dynamoDatabase.putItem(parameter).promise();
+    //To send message onto SNS
+    //var sns = new AWS.SNS({apiVersion: '2010-03-31'});
+    // Create publish parameters
+    var params = {
+      Message: response.username,
+      Subject: randomnanoID,
+      TopicArn: "arn:aws:sns:us-east-1:652427370007:VerifyingEmail",
+    };
+    //var topicARN= 'arn:aws:sns:us-east-1:172869529067:VerifyingEmail';
+    var publishTextPromise = new aws.SNS({
+      apiVersion: "2010-03-31",
+      region: "us-east-1",
+    });
+    await publishTextPromise.publish(params).promise();
+
     Acc.password = undefined;
     logger.info("postAccount Success");
     return res.status(201).send(Acc);
@@ -156,7 +194,8 @@ Router.put("/v1/account/:id", async (req, res) => {
 
     if (Acc) {
       const validPass = bcrypt.compareSync(pass, Acc.password);
-      if (validPass) {
+      // console.log(Acc.verifyuser);
+      if (Acc.verifyuser && validPass) {
         if (req.params.id === Acc.id) {
           const Hpassword = req.body.password || pass;
           const first = req.body.first_name || Acc.first_name;
@@ -207,7 +246,7 @@ Router.get("/v1/documents/:doc_id", async (req, res) => {
     });
     if (acc) {
       const validPass = bcrypt.compareSync(pass, acc.password);
-      if (validPass) {
+      if (acc.verifyuser && validPass) {
         const doc = await Document.findOne({
           where: {
             user_id: acc.id,
@@ -246,7 +285,7 @@ Router.get("/v1/documents", async (req, res) => {
     });
     if (acc) {
       const validPass = bcrypt.compareSync(pass, acc.password);
-      if (validPass) {
+      if (acc.verifyuser && validPass) {
         const doc = await Document.findAll({
           where: {
             user_id: acc.id,
@@ -284,7 +323,7 @@ Router.post("/v1/documents", async (req, res) => {
     });
     if (acc) {
       const validPass = bcrypt.compareSync(pass, acc.password);
-      if (validPass) {
+      if (acc.verifyuser && validPass) {
         fle(req, res, async (err) => {
           if (err) {
             res.status(400).send("Bad Request");
@@ -326,7 +365,7 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
         username: user,
       },
     });
-    if (acc) {
+    if (acc.verifyuser && validPass) {
       const validPass = bcrypt.compareSync(pass, acc.password);
       if (validPass) {
         const doc = await Document.findOne({
@@ -358,6 +397,87 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
     console.log(e);
     logger.error(e);
     return res.status(404).send("Not Found");
+  }
+});
+
+//To verify Email of a particular user
+// Router.get("/v1/verifyEmail", async (req, res) => {
+Router.get("/v1/verifyEmail", async (request, response) => {
+  try {
+    //const email= request.params.email;
+    const emailQuery = request.query.email;
+    const tokenQuery = request.query.token;
+
+    aws.config.update({
+      region: "us-east-1",
+      // accessKeyId: process.env.AWS_ACCESS_KEY,
+      // secretAccessKey: process.env.AWS_SECRET_KEY,
+    });
+    const dynamoDatabase = new aws.DynamoDB({
+      apiVersion: "2012-08-10",
+      region: "us-east-1",
+    });
+
+    let userName = await Accounts.findAll({ where: { username: emailQuery } });
+
+    if (userName == "" || userName == null) {
+      console.log(userName);
+      let response = { statusCode: 401, message: "Unauthorized Access" };
+      return response;
+    }
+
+    const verifyFlag = userName[0].verifyuser;
+
+    if (verifyFlag) {
+      let response = {
+        statusCode: 400,
+        message: "Your email is already verified",
+      };
+      return response;
+    }
+
+    // Create the Service interface for dynamoDB
+    var parameter = {
+      Key: {
+        TokenName: { S: tokenQuery },
+      },
+      TableName: "myDynamoTokenTable",
+      ProjectionExpression: "TimeToLive",
+    };
+
+    //getting the token onto the dynamo DB
+    const dynamoResponse = await dynamoDatabase.getItem(parameter).promise();
+    console.log("Response from dynamo", dynamoResponse);
+
+    //computing current timestamp to check if token is expired
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    console.log("TTL time", dynamoResponse.Item.TimeToLive.N);
+    console.log("current time", Math.floor(Date.now() / 1000));
+    //console.log("Item response here",dynamoResponse.Item);
+
+    if (
+      currentTime > dynamoResponse.Item.TimeToLive.N ||
+      dynamoResponse.Item == undefined
+    ) {
+      let response = {
+        statusCode: 400,
+        message: "Token has already expired",
+      };
+      return response;
+    }
+    //if the token is successfully verified, the verifyuser flag is updated to true
+    await Accounts.update(
+      { verifyuser: true },
+      { where: { username: emailQuery } }
+    );
+
+    let response = { statusCode: 200, message: "Token successfully updated" };
+    return response;
+  } catch (e) {
+    console.log(e);
+    res = { statusCode: 500, message: e.message };
+    return res;
   }
 });
 
