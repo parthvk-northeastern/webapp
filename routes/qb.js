@@ -410,6 +410,12 @@ Router.get("/v1/verifyEmail", async (request, response) => {
     const emailQuery = request.query.email;
     const tokenQuery = request.query.token;
 
+    // console.log("*****************");
+    // console.log(request.query);
+    // console.log("*****************");
+    // console.log(emailQuery);
+    // console.log("*****************");
+    // console.log(request.query.email);
     aws.config.update({
       region: "us-east-1",
       // accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -424,18 +430,20 @@ Router.get("/v1/verifyEmail", async (request, response) => {
 
     if (userName == "" || userName == null) {
       console.log(userName);
-      let response = { statusCode: 401, message: "Unauthorized Access" };
-      return response;
+      return response.status(401).send("Unauthorized Access");
+      // let response = { statusCode: 401, message: "Unauthorized Access" };
+      // return response;
     }
 
     const verifyFlag = userName[0].verifyuser;
 
     if (verifyFlag) {
-      let response = {
-        statusCode: 400,
-        message: "Your email is already verified",
-      };
-      return response;
+      return response.status(400).send("Your email is already verified");
+      // let response = {
+      //   statusCode: 400,
+      //   message: "Your email is already verified",
+      // };
+      // return response;
     }
 
     // Create the Service interface for dynamoDB
@@ -462,11 +470,12 @@ Router.get("/v1/verifyEmail", async (request, response) => {
       currentTime > dynamoResponse.Item.TimeToLive.N ||
       dynamoResponse.Item == undefined
     ) {
-      let response = {
-        statusCode: 400,
-        message: "Token has already expired",
-      };
-      return response;
+      return response.status(400).send("Token has already expired");
+      // let response = {
+      //   statusCode: 400,
+      //   message: "Token has already expired",
+      // };
+      // return response;
     }
     //if the token is successfully verified, the verifyuser flag is updated to true
     await Accounts.update(
@@ -474,12 +483,14 @@ Router.get("/v1/verifyEmail", async (request, response) => {
       { where: { username: emailQuery } }
     );
 
-    let response = { statusCode: 200, message: "Token successfully updated" };
-    return response;
+    return response.status(200).send("Token successfully updated");
+    // let response = { statusCode: 200, message: "Token successfully updated" };
+    // return response;
   } catch (e) {
     console.log(e);
-    res = { statusCode: 500, message: e.message };
-    return res;
+    return response.status(500).send(e.message);
+    // res = { statusCode: 500, message: e.message };
+    // return res;
   }
 });
 
