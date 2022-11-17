@@ -146,10 +146,12 @@ Router.post("/v1/account", async (req, res) => {
     //To send message onto SNS
     //var sns = new AWS.SNS({apiVersion: '2010-03-31'});
     // Create publish parameters
+    // 122596462960
+    // 652427370007
     var params = {
-      Message: response.username,
+      Message: Acc.username,
       Subject: randomnanoID,
-      TopicArn: "arn:aws:sns:us-east-1:652427370007:VerifyingEmail",
+      TopicArn: "arn:aws:sns:us-east-1:122596462960:verify_email",
     };
     //var topicARN= 'arn:aws:sns:us-east-1:172869529067:VerifyingEmail';
     var publishTextPromise = new aws.SNS({
