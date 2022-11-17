@@ -367,9 +367,9 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
         username: user,
       },
     });
-    if (acc.verifyuser && validPass) {
+    if (acc) {
       const validPass = bcrypt.compareSync(pass, acc.password);
-      if (validPass) {
+      if (acc.verifyuser && validPass) {
         const doc = await Document.findOne({
           where: {
             user_id: acc.id,
