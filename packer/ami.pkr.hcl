@@ -26,10 +26,11 @@ variable "subnet_id" {
   type    = string
   default = "subnet-09fd77415b5d173c0"
 }
-
+// 122596462960
+// 484952867694
 variable "ami_users" {
   type    = string
-  default = "484952867694"
+  default = "122596462960"
 }
 
 # https://www.packer.io/plugins/builders/amazon/ebs
