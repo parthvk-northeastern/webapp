@@ -130,9 +130,9 @@ Router.post("/v1/account", async (req, res) => {
     const elapsedTime = 5 * 60;
     const initialTime = Math.floor(Date.now() / 1000);
     const expiryTime = initialTime + elapsedTime;
-    // console.log(nanoid());
+
     const randomnanoID = nanoid();
-    // console.log(nanoid());
+
     // Create the Service interface for dynamoDB
     var parameter = {
       Item: {
@@ -402,24 +402,13 @@ Router.delete("/v1/documents/:doc_id", async (req, res) => {
   }
 });
 
-//To verify Email of a particular user
-// Router.get("/v1/verifyEmail", async (req, res) => {
 Router.get("/v1/verifyEmail", async (request, response) => {
   try {
-    //const email= request.params.email;
     const emailQuery = request.query.email;
     const tokenQuery = request.query.token;
 
-    // console.log("*****************");
-    // console.log(request.query);
-    // console.log("*****************");
-    // console.log(emailQuery);
-    // console.log("*****************");
-    // console.log(request.query.email);
     aws.config.update({
       region: "us-east-1",
-      // accessKeyId: process.env.AWS_ACCESS_KEY,
-      // secretAccessKey: process.env.AWS_SECRET_KEY,
     });
     const dynamoDatabase = new aws.DynamoDB({
       apiVersion: "2012-08-10",
@@ -431,19 +420,12 @@ Router.get("/v1/verifyEmail", async (request, response) => {
     if (userName == "" || userName == null) {
       console.log(userName);
       return response.status(401).send("Unauthorized Access");
-      // let response = { statusCode: 401, message: "Unauthorized Access" };
-      // return response;
     }
 
     const verifyFlag = userName[0].verifyuser;
 
     if (verifyFlag) {
       return response.status(400).send("Your email is already verified");
-      // let response = {
-      //   statusCode: 400,
-      //   message: "Your email is already verified",
-      // };
-      // return response;
     }
 
     // Create the Service interface for dynamoDB
@@ -455,27 +437,21 @@ Router.get("/v1/verifyEmail", async (request, response) => {
       ProjectionExpression: "TimeToLive",
     };
 
-    //getting the token onto the dynamo DB
+    //getting the token from the dynamo table
     const dynamoResponse = await dynamoDatabase.getItem(parameter).promise();
     console.log("Response from dynamo", dynamoResponse);
 
-    //computing current timestamp to check if token is expired
+    //check current timestamp to check if token is invalid
     const currentTime = Math.floor(Date.now() / 1000);
 
     console.log("TTL time", dynamoResponse.Item.TimeToLive.N);
     console.log("current time", Math.floor(Date.now() / 1000));
-    //console.log("Item response here",dynamoResponse.Item);
 
     if (
       currentTime > dynamoResponse.Item.TimeToLive.N ||
       dynamoResponse.Item == undefined
     ) {
       return response.status(400).send("Token has already expired");
-      // let response = {
-      //   statusCode: 400,
-      //   message: "Token has already expired",
-      // };
-      // return response;
     }
     //if the token is successfully verified, the verifyuser flag is updated to true
     await Accounts.update(
@@ -484,13 +460,9 @@ Router.get("/v1/verifyEmail", async (request, response) => {
     );
 
     return response.status(200).send("Token successfully updated");
-    // let response = { statusCode: 200, message: "Token successfully updated" };
-    // return response;
   } catch (e) {
     console.log(e);
     return response.status(500).send(e.message);
-    // res = { statusCode: 500, message: e.message };
-    // return res;
   }
 });
 
