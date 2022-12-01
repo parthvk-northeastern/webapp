@@ -22,9 +22,21 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}      
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_R }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_R }}
+          aws-region: ${{ secrets.AWS_REGION }} 
+
+      - name: AWS CLI
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1.0.4
+        with:
+          version: 2
+      - run: |
+          aws --version
+          aws ec2 create-launch-template-version --launch-template-name myvpc-launch-template --source-version 1 --launch-template-data "ImageId=ami-0d618312c9289a886"
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name myvpc-auto-Scaling-Group --launch-template LaunchTemplateName='myvpc-launch-template',Version='$Latest'
+          aws autoscaling start-instance-refresh --auto-scaling-group-name myvpc-auto-Scaling-Group
+        shell: bash                
 
       - name: Build zip
         working-directory: ${{ github.workspace }}
@@ -37,14 +49,4 @@ jobs:
           packer validate ami.pkr.hcl
           packer build ami.pkr.hcl
 
-      - name: AWS CLI
-        id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.4
-        with:
-          version: 2
-      - run: |
-          aws --version
-          aws ec2 create-launch-template-version --launch-template-name myvpc-launch-template --source-version 1 --launch-template-data "ImageId=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)"
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name myvpc-auto-Scaling-Group --launch-template LaunchTemplateName='myvpc-launch-template',Version='$Latest'
-          aws autoscaling start-instance-refresh --auto-scaling-group-name myvpc-auto-Scaling-Group
-        shell: bash              
+             
