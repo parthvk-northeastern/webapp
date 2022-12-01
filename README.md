@@ -92,3 +92,6 @@
 - npm i winston winston-cloudwatch --save
 - 
 
+### Assignment 9
+- seq 1 200000 | xargs -n1 -P20 curl "https://parthk117.me/healthz"
+
