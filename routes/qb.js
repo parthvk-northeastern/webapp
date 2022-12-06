@@ -110,7 +110,7 @@ Router.get("/v1/account/:id", async (req, res) => {
   }
 });
 
-Router.post("/v1/account", async (req, res) => {
+Router.post("/v2/account", async (req, res) => {
   sdc.increment("endpoint.postAccount");
   try {
     const hash = await bcrypt.hash(req.body.password, 10);
